@@ -5,6 +5,7 @@ import { OutlinePass } from 'three/addons/postprocessing/OutlinePass.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 const scene = new THREE.Scene()
+scene.background = new THREE.Color(0xf8f5f2);
 
 const camera = new THREE.PerspectiveCamera(75, 1, 0.1, 10)
 
@@ -31,6 +32,7 @@ let renderPass = new RenderPass(scene, camera);
 let outlinePass = new OutlinePass(new THREE.Vector2(window.innerWidth, window.innerHeight), scene, camera, selectedObjects);
 outlinePass.renderToScreen = true;
 outlinePass.selectedObjects = selectedObjects;
+outlinePass.overlayMaterial.blending = THREE.NormalBlending
 
 compose.addPass(renderPass);
 compose.addPass(outlinePass);
