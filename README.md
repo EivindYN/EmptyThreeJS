@@ -1,1 +1,2 @@
-# WoolitThreejs
+# Running
+yarn run vite
