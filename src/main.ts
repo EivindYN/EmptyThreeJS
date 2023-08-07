@@ -35,12 +35,16 @@ loader.load(`/cube.gltf`, (gltf: any) => {
     ctx.fill();
     ctx.fillStyle = "red";
     ctx.fillRect(0, 0, 200, 400);
-    const uvAttribute = geometry.getAttribute( 'UVMap' );
-    console.log(uvAttribute)
+    let uvAttribute = geometry.getAttribute('uv');
+    for (let i = 0; i < uvAttribute.count; i++){
+        let x_start = uvAttribute.getX(i)
+        let y_start = uvAttribute.getY(i)
+        let z_start = uvAttribute.getZ(i)
+        uvAttribute.setXYZ( i, x_start - 0.1, y_start - 0.1, z_start - 0.1);
+    }
+    console.log(uvAttribute);
     material.map = new THREE.Texture(canvas);
-    material.map.wrapS = THREE.RepeatWrapping;
-    material.map.wrapT = THREE.RepeatWrapping;
-    material.map.repeat.set( 40, 40 );
+    console.log(material.map.mapping)
     material.map.flipY = false;
     material.map.needsUpdate = true;
     mesh.scale.set(0.5, 0.5, 0.5);
