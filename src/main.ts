@@ -1,5 +1,8 @@
 //npm install dat.gui --save-dev
 //npm install @types/dat.gui --save-dev
+// @ts-ignore
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+// @ts-ignore
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
 import * as THREE from 'three'
 
@@ -17,15 +20,48 @@ function setup(){
 }
 setup()
 
-
-const groundGeometry = new THREE.BoxGeometry(1, 1, 1);
-const groundMaterial = new THREE.MeshStandardMaterial();
-const groundMesh = new THREE.Mesh(groundGeometry, groundMaterial);
+let loader = new GLTFLoader();
+let geometry: THREE.BufferGeometry;
+loader.load(`/cube.gltf`, (gltf: any) => {
+    geometry = gltf.scene.children[0].children[0].geometry;
+    const material = new THREE.MeshStandardMaterial();
+    let mesh = new THREE.Mesh(geometry, material);
+    const canvas = document.createElement("canvas");
+    canvas.width = 400;
+    canvas.height = 400;
+    let ctx = canvas.getContext("2d")!!;
+    ctx.rect(0, 0, 400, 400);
+    ctx.fillStyle = "white";
+    ctx.fill();
+    ctx.fillStyle = "red";
+    ctx.fillRect(0, 0, 200, 400);
+    material.map = new THREE.Texture(canvas);
+    material.map.flipY = false;
+    material.map.needsUpdate = true;
+    mesh.scale.set(0.5, 0.5, 0.5);
+    scene.add(mesh);
+    loader.load(`/cube_extruded.gltf`, (gltf: any) => {
+        const positionAttribute = geometry.getAttribute( 'position' );
+        let geometry2: THREE.BufferGeometry = gltf.scene.children[0].children[0].geometry;
+        const positionAttribute2 = geometry2.getAttribute( 'position' );
+        for ( let i = 0; i < positionAttribute.count; i ++ ) {
+            let x_start = positionAttribute.getX(i)
+            let y_start = positionAttribute.getY(i)
+            let z_start = positionAttribute.getZ(i)
+            let x_end = positionAttribute2.getX(i)
+            let y_end = positionAttribute2.getY(i)
+            let z_end = positionAttribute2.getZ(i)
+            let x_diff = x_end - x_start
+            let y_diff = y_end - y_start
+            let z_diff = z_end - z_start
+            positionAttribute.setXYZ( i, x_start + x_diff * 5, y_start + y_diff * 5, z_start + z_diff * 5);
+        }
+        positionAttribute.needsUpdate = true;
+        geometry.computeBoundingBox(); // probably unnessary, but done incase
+        geometry.computeBoundingSphere(); // probably unnessary, but done incase
+      });
+  });
 scene.add(new THREE.AmbientLight())
-groundMesh.position.y = 0;
-groundMesh.rotateY(Math.PI / 4)
-groundMesh.rotateZ(Math.PI / 4)
-scene.add(groundMesh);
 
 function update() {
     requestAnimationFrame(update)
